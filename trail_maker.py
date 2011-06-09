@@ -33,11 +33,20 @@ parser.add_argument('-b',
 parser.add_argument('-s',
                     type=int, default=42,
                     help='random number seed')
+parser.add_argument('-P0',
+                    type=float, default=0.0,
+                    help='initial value (for 1D)')
+parser.add_argument('-Px0',
+                    type=float, default=0.0,
+                    help='initial value of x component (for 3D)')
+parser.add_argument('-Py0',
+                    type=float, default=0.0,
+                    help='initial value of y component (for 3D)')
+parser.add_argument('-Pz0',
+                    type=float, default=0.0,
+                    help='initial value of z component (for 3D)')
 
 args = parser.parse_args()
-
-# Initial value P_0 is always 1 or (1,1,1)/sqrt(3.0).
-# Increment \delta P is (given increment)/sqrt(N).
 
 seed(args.s)
 
@@ -47,8 +56,8 @@ d = args.d
 b = args.b
 dP = args.i/np.sqrt(N)
 
-def trail_1d(N, r=0, c=0.0) :
-    P0 = 1.0
+def trail_1d(N, r=0, c=0.0, b=3.0e40) :
+    P0 = args.P0
     P = P0
     trl = np.empty(N+1)
     trl[0] = P0
@@ -62,8 +71,12 @@ def trail_1d(N, r=0, c=0.0) :
         q = 0.0
     for i in range(N) :
         X = random() - 0.5
-        if X>q : P -= dP # this choice brings positive correlation
-        else   : P += dP # for positive c
+        if X>q : DP = -dP # this choice brings positive correlation
+        else   : DP = dP  # for positive c
+        if np.fabs(P+DP) > b :
+            P -= DP
+        else :
+            P += DP
         trl[i+1] = P
         if use_rep :
             rep[i%r] = X
@@ -74,7 +87,7 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
     def vec_norm2(a) :
         return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
     b2 = b*b
-    P0x, P0y, P0z = 1.0/np.sqrt(3.0), 1.0/np.sqrt(3.0), 1.0/np.sqrt(3.0)
+    P0x, P0y, P0z =  args.P0x, args.P0y, args.P0z
     Px, Py, Pz = P0x, P0y, P0z
     trlx, trly, trlz  = np.empty(N+1), np.empty(N+1), np.empty(N+1),
     trlx[0], trly[0], trlz[0] = P0x, P0y, P0z
@@ -100,7 +113,6 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
         else     : DPz = dP 
         Ptry = Px+DPx, Py+DPy, Pz+DPz
         if vec_norm2(Ptry) > b2 : # we'll cross bndry if we take this step
-            print('# XX', i, Px, Py, Pz)
             Px -= DPx           # so we take the opposite step
             Py -= DPy
             Pz -= DPz
@@ -118,11 +130,11 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
 
 ts = np.linspace(0.0, Dt, N+1)
 if d==1 :
-    trl = trail_1d(N)
+    trl = trail_1d(N, r=args.r, c=args.c, b=args.b)
     for i, t in enumerate(ts) :
         print('%e %e' % (t, trl[i]))
 elif d==3 :
-    trlx, trly, trlz = trail_3d(N,0,0.0,b)
+    trlx, trly, trlz = trail_3d(N, r=args.r, c=args.c, b=args.b)
     for i, t in enumerate(ts) :
         print('%e %e %e %e' % (t, trlx[i], trly[i], trlz[i]))
 
