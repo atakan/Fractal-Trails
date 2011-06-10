@@ -1,0 +1,8 @@
+# vi swap files
+.*.swp
+
+# data files
+*.dat
+
+# gnuplot scripts
+*.gnuplot
