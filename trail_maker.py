@@ -9,15 +9,15 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Creates a random walk trail')
 
-parser.add_argument('-i',
-                    type=float, default=1.0,
-                    help='size of increments (will get normalized)')
 parser.add_argument('-d',
                     type=int, default=3,
                     help='topological dimension of the trail (default: 3)')
 parser.add_argument('-N',
                     type=int, default=1000,
                     help='number of points generated (default: 1000)')
+parser.add_argument('-i',
+                    type=float, default=1.0,
+                    help='size of increments (will get normalized by 1/sqrt(N))')
 parser.add_argument('-r',
                     type=int, default=0,
                     help='repository size (default: 0)')
