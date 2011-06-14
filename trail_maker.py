@@ -9,21 +9,18 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Creates a random walk trail')
 
-parser.add_argument('-t',
-                    type=float, default=1.0,
-                    help='duration of the motion')
 parser.add_argument('-i',
                     type=float, default=1.0,
                     help='size of increments (will get normalized)')
 parser.add_argument('-d',
                     type=int, default=3,
-                    help='dimensionality of the trail')
+                    help='topological dimension of the trail (default: 3)')
 parser.add_argument('-N',
                     type=int, default=1000,
-                    help='number of points generated')
+                    help='number of points generated (default: 1000)')
 parser.add_argument('-r',
                     type=int, default=0,
-                    help='repository size')
+                    help='repository size (default: 0)')
 parser.add_argument('-c',
                     type=int, default=0.0,
                     help='bias strength')
@@ -34,23 +31,32 @@ parser.add_argument('-s',
                     type=int, default=42,
                     help='random number seed')
 parser.add_argument('-P0',
-                    type=float, default=0.0,
+                    type=float, default=0.0, dest='P0',
                     help='initial value (for 1D)')
-parser.add_argument('-Px0',
-                    type=float, default=0.0,
+parser.add_argument('-P0x',
+                    type=float, default=0.0, dest='P0x',
                     help='initial value of x component (for 3D)')
-parser.add_argument('-Py0',
-                    type=float, default=0.0,
+parser.add_argument('-P0y',
+                    type=float, default=0.0, dest='P0y',
                     help='initial value of y component (for 3D)')
-parser.add_argument('-Pz0',
-                    type=float, default=0.0,
+parser.add_argument('-P0z',
+                    type=float, default=0.0, dest='P0z',
                     help='initial value of z component (for 3D)')
+parser.add_argument('-o','--output-file',
+                    type=argparse.FileType('w'),
+                    default=None,
+                    help='output filename (if not given, use stdout)')
+parser.add_argument('--numpy', dest='outputformat', action='store_const',
+                   const='numpy', default='undecided',
+                   help='output in NumPy format (default: ASCII for stdout, NumPy for file')
+parser.add_argument('--ascii', dest='outputformat', action='store_const',
+                   const='ascii', default='undecided',
+                   help='output in ASCII format (default: ASCII for stdout, NumPy for file')
 
 args = parser.parse_args()
 
 seed(args.s)
 
-Dt = args.t
 N = args.N
 d = args.d
 b = args.b
@@ -89,8 +95,8 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
     b2 = b*b
     P0x, P0y, P0z =  args.P0x, args.P0y, args.P0z
     Px, Py, Pz = P0x, P0y, P0z
-    trlx, trly, trlz  = np.empty(N+1), np.empty(N+1), np.empty(N+1),
-    trlx[0], trly[0], trlz[0] = P0x, P0y, P0z
+    trl  = np.empty((N+1,3))
+    trl[0] = P0x, P0y, P0z
     if r>0 and c!=0.0 : # repository initialization
         use_rep = True
         rep_norm = 1.0/np.sqrt(r)
@@ -120,21 +126,20 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
             Px += DPx           # so we take normal step
             Py += DPy
             Pz += DPz
-        trlx[i+1], trly[i+1], trlz[i+1] = Px, Py, Pz
+        trl[i+1] = (Px, Py, Pz)
         if use_rep :
             repx[i%r], repy[i%r], repz[i%r]= Xx, Xy, Xz
             qx = np.sum(repx)*rep_norm * c
             qy = np.sum(repy)*rep_norm * c
             qz = np.sum(repz)*rep_norm * c
-    return trlx, trly, trlz
+    return trl
 
-ts = np.linspace(0.0, Dt, N+1)
 if d==1 :
     trl = trail_1d(N, r=args.r, c=args.c, b=args.b)
-    for i, t in enumerate(ts) :
-        print('%e %e' % (t, trl[i]))
+    for p in trl :
+        print('%e' % (p))
 elif d==3 :
-    trlx, trly, trlz = trail_3d(N, r=args.r, c=args.c, b=args.b)
-    for i, t in enumerate(ts) :
-        print('%e %e %e %e' % (t, trlx[i], trly[i], trlz[i]))
+    trl = trail_3d(N, r=args.r, c=args.c, b=args.b)
+    for p in trl :
+        print('%e %e %e' % (p[0], p[1], p[2]))
 
