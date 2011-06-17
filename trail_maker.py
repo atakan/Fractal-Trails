@@ -1,11 +1,27 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
+#    Copyright (C) 2011  Mehmet Atakan Gürkan
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 3 as
+#    published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program (probably in a file named COPYING).
+#    If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import print_function, division
 
 import numpy as np
 from numpy.random import random, seed
-import argparse
+import argparse, sys
 
 parser = argparse.ArgumentParser(description='Creates a random walk trail')
 
@@ -14,7 +30,7 @@ parser.add_argument('-d',
                     help='topological dimension of the trail (default: 3)')
 parser.add_argument('-N',
                     type=int, default=1000,
-                    help='number of points generated (default: 1000)')
+                    help='number of steps in the trail (default: 1000)')
 parser.add_argument('-i',
                     type=float, default=1.0,
                     help='size of increments (will get normalized by 1/sqrt(N))')
@@ -22,7 +38,7 @@ parser.add_argument('-r',
                     type=int, default=0,
                     help='repository size (default: 0)')
 parser.add_argument('-c',
-                    type=int, default=0.0,
+                    type=float, default=0.0,
                     help='bias strength')
 parser.add_argument('-b',
                     type=float, default=3.0e40,
@@ -43,8 +59,9 @@ parser.add_argument('-P0z',
                     type=float, default=0.0, dest='P0z',
                     help='initial value of z component (for 3D)')
 parser.add_argument('-o','--output-file',
+                    dest='outfile',
                     type=argparse.FileType('w'),
-                    default=None,
+                    default=sys.stdout,
                     help='output filename (if not given, use stdout)')
 parser.add_argument('--numpy', dest='outputformat', action='store_const',
                    const='numpy', default='undecided',
@@ -74,11 +91,12 @@ def trail_1d(N, r=0, c=0.0, b=3.0e40) :
         q = np.sum(rep)*rep_norm * c
     else :
         use_rep = False
+        dummy = random(r)
         q = 0.0
     for i in range(N) :
         X = random() - 0.5
-        if X>q : DP = -dP # this choice brings positive correlation
-        else   : DP = dP  # for positive c
+        if X>q : DP = -dP 
+        else   : DP = dP  
         if np.fabs(P+DP) > b :
             P -= DP
         else :
@@ -86,7 +104,7 @@ def trail_1d(N, r=0, c=0.0, b=3.0e40) :
         trl[i+1] = P
         if use_rep :
             rep[i%r] = X
-            q = np.sum(rep)*rep_norm * c
+            q = -1.0*np.sum(rep)*rep_norm * c
     return trl
 
 def trail_3d(N, r=0, c=0.0, b=3.0e40) :
@@ -106,6 +124,7 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
         qz = np.sum(repz)*rep_norm * c
     else :
         use_rep = False
+        dummy = random(r*3)
         qx, qy, qz = 0.0, 0.0, 0.0
     for i in range(N) :
         Xx = random() - 0.5
@@ -129,17 +148,32 @@ def trail_3d(N, r=0, c=0.0, b=3.0e40) :
         trl[i+1] = (Px, Py, Pz)
         if use_rep :
             repx[i%r], repy[i%r], repz[i%r]= Xx, Xy, Xz
-            qx = np.sum(repx)*rep_norm * c
-            qy = np.sum(repy)*rep_norm * c
-            qz = np.sum(repz)*rep_norm * c
+            qx = -1.0*np.sum(repx)*rep_norm * c
+            qy = -1.0*np.sum(repy)*rep_norm * c
+            qz = -1.0*np.sum(repz)*rep_norm * c
     return trl
+
+if args.outputformat == 'undecided' :
+    if args.outfile == sys.stdout :
+        outputformat = 'ascii'
+    else :
+        outputformat = 'numpy'
+else :
+    outputformat = args.outputformat
 
 if d==1 :
     trl = trail_1d(N, r=args.r, c=args.c, b=args.b)
-    for p in trl :
-        print('%e' % (p))
+    if outputformat == 'ascii' :
+        for p in trl :
+            print('%e' % (p), file=args.outfile)
+    else :
+        np.save(args.outfile, trl)
 elif d==3 :
     trl = trail_3d(N, r=args.r, c=args.c, b=args.b)
-    for p in trl :
-        print('%e %e %e' % (p[0], p[1], p[2]))
-
+    if outputformat == 'ascii' :
+        for p in trl :
+            print('%e %e %e' % (p[0], p[1], p[2]), file=args.outfile)
+    else :
+        np.save(args.outfile, trl)
+else :
+    print('illegal dimension given: %d' %(d))
