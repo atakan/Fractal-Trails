@@ -6,3 +6,8 @@
 
 # gnuplot scripts
 *.gnuplot
+
+# files created from source
+build
+trail_length_calc.c
+trail_length_calc.so
