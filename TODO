@@ -1,1 +1,2 @@
-introduce numpy fileformat support, and writing/reading from stdout/stdin.
+1) Introduce numpy fileformat support, and writing/reading from stdout/stdin.
+2) Add code for Mandelbrot's diagrams
