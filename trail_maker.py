@@ -46,6 +46,9 @@ parser.add_argument('-b',
 parser.add_argument('-s',
                     type=int, default=42,
                     help='random number seed')
+parser.add_argument('--rangen',
+                    type=int, default=-1,
+                    help='generate this many random numbers before starting to build the trail (default: repo size; ignored if less than repo size)')
 parser.add_argument('-P0',
                     type=float, default=0.0, dest='P0',
                     help='initial value (for 1D)')
@@ -73,6 +76,8 @@ parser.add_argument('--ascii', dest='outputformat', action='store_const',
 args = parser.parse_args()
 
 seed(args.s)
+if args.rangen > args.r :
+    dummy = random(args.rangen - args.r)
 
 N = args.N
 d = args.d
