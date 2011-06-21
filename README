@@ -13,6 +13,10 @@ I will clean up and upload the analysis code soon.
 
 trail_maker.py uses NumPy and argparse.
 
+trail_analyzer uses NumPy, argparse, Cython and GSL. To use it,
+first create trail_length_calc.so by running
+python setup.py build_ext --inplace
+
 Keywords: Fractals -- fractal dimension -- Brownian motion --
 random walk
 
