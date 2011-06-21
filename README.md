@@ -5,14 +5,15 @@ of the trails and yields the timescales of correlations as well as
 their strength.
 
 I used the techniques for creating and analyzing random walk trails
-in a paper that is available in the `doc/` directory. This paper has
-the formulae for estimating the fractal dimension. The code in this
-repository is a clean-up/rewrite of the code used for that paper. 
+in a paper that is available in the `doc/` directory.
+[This paper](http://arxiv.org/abs/1011.5226) has the formulae for
+estimating the fractal dimension. The code in this repository is a
+clean-up/rewrite of the code used for that paper.
 
-`trail_maker.py` uses [NumPy](http://numpy.scipy.org/) and
+**trail_maker.py** uses [NumPy](http://numpy.scipy.org/) and
 [argparse](http://code.google.com/p/argparse/).
 
-`trail_analyzer` uses [NumPy](http://numpy.scipy.org/),
+**trail_analyzer** uses [NumPy](http://numpy.scipy.org/),
 [argparse](http://code.google.com/p/argparse/),
 [Cython](http://cython.org/) and [GSL](http://www.gnu.org/software/gsl/).
 To use it, first create `trail_length_calc.so` by running
