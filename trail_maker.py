@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
 #    Copyright (C) 2011  Mehmet Atakan Gürkan
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -45,7 +44,7 @@ parser.add_argument('-b',
                     help='radius of boundary')
 parser.add_argument('-s',
                     type=int, default=42,
-                    help='random number seed')
+                    help='random number seed (default: 42)')
 parser.add_argument('--rangen',
                     type=int, default=-1,
                     help='generate this many random numbers before starting to build the trail (default: repo size; ignored if less than repo size)')
