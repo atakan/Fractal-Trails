@@ -86,8 +86,16 @@ are exact divisors of tend, which is the absolute maximum.'''
 
 dn = np.loadtxt(args.infile)
 if args.firstcol==True :
-    tt = dn[:,0]
-    dd = dn[:,1:]
+    if np.size(np.shape(dn))==2 and np.shape(dn)[1]==4 :
+        tt = dn[:,0]
+        dd = dn[:,1:]
+    elif np.size(np.shape(dn))==2 and np.shape(dn)[1]==2 :
+        tt = dn[:,0]
+        dd = dn[:,1]
+    else :
+        print('input file is not 1D or 3D')
+        print(np.shape(dn))
+        sys.exit()
 else :
     tt = np.linspace(0, args.t, np.shape(dn)[0])
     dd = dn
@@ -107,6 +115,8 @@ elif np.size(np.shape(dd))==1 :
     trail_lengths = trail_length_1d(ruler_lengths, tt, dd)
 else :
     print('input file is not 1D or 3D')
+    print(np.shape(dd))
+    sys.exit()
 
 for i, rl in enumerate(ruler_lengths) :
     print(rl, trail_lengths[i])
