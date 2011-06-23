@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy
 
 cdef extern from "stdlib.h":
@@ -122,9 +123,15 @@ def trail_length_1d(ndarray rls, ndarray tt, ndarray dd) :
     # For each ruler length, we create a new trail using this spline;
     # then calculate the length of this trail.
     tls = [] # trail lengths
+#    print("# tt", list(tt))
+#    print("# T", list(T))
     for rl in rls :
-        new_t = numpy.arange(T[0], T[-1], rl)
+        #new_t = numpy.arange(T[0], T[-1], rl)
+        new_t = numpy.linspace(T[0], T[-1], round((T[-1]-T[0])/rl))
         new_x = [gsl_spline_eval(splinex, t, accx) for t in new_t]
+#        print("# T[0], T[-1], rl", T[0], T[-1], rl)
+#        print("# t = ", list(new_t))
+#        print("# x = ", list(new_x))
         tls.append(get_length((new_x)))
     gsl_spline_free(splinex)
     gsl_interp_accel_free(accx)
