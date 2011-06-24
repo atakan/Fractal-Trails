@@ -46,7 +46,9 @@ parser.add_argument('--numpy', dest='inputformat', action='store_const',
 parser.add_argument('--ascii', dest='inputformat', action='store_const',
                     const='numpy', default='undecided',
                     help='input in ASCII format (default: NumPy)')
-
+parser.add_argument('--jump-check', dest='jumpcheck',
+                    action='store_true', 
+                    help='check if there are discontinuities in the data, ie., points with same time but different coordinates')
 
 args = parser.parse_args()
 
@@ -99,6 +101,53 @@ if args.firstcol==True :
 else :
     tt = np.linspace(0, args.t, np.shape(dn)[0])
     dd = dn
+
+if args.jumpcheck == True :
+    same_ts = []
+    told = tt[0]
+    found_duplicate = False
+    duplicates = []
+    length_dup = 1
+    for i in range(1,len(tt)) :
+        tnow = tt[i]
+        if tnow == told :
+            found_duplicate = True
+            length_dup += 1
+        else :
+            if found_duplicate == True : # duplicate string ended
+                duplicates.append([i-length_dup, length_dup])
+                length_dup = 1
+                found_duplicate = False
+        told = tnow
+    if found_duplicate == True : # no more data
+        duplicates.append([i-length_dup+1, length_dup])
+#    print(tt)
+#    print(duplicates)
+    for i, k in duplicates :
+        if i == 0 : # special case 1, starting w/ dups
+            tprev = tt[0]
+            tnext = tt[i+k+1]
+            tdel = tnext-tprev
+            for j in range(k) :
+                tt[i+j] += tdel * 1e-4 * float(j)/k 
+        elif i+k == len(tt) : # special case 2, ending w/ dups
+            tprev = tt[i-1]
+            tnext = tt[-1]
+            tdel = tnext-tprev
+            for j in range(k) :
+                tt[i+j] -= tdel * 1e-4 * float(k-j-1)/k 
+        else :
+            tprev = tt[i-1]
+            tnext = tt[i+k+1]
+            for j in range(k) :
+                tdup = tt[i]
+                if j<k/2 :
+                    tdel = tdup-tprev
+                else :
+                    tdel = tnext-tdup
+                tt[i+j] +=  tdel * 1e-4 * float(j - k/2.0)/k
+#    print(tt)
+#    sys.exit(0)
 
 
 tend = tt[-1]
