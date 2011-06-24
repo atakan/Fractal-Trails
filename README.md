@@ -10,6 +10,12 @@ in a paper that is available in the `doc/` directory.
 estimating the fractal dimension. The code in this repository is a
 clean-up/rewrite of the code used for that paper.
 
+There is also a little code, called `mandelbrot_cartoons.py`, to create
+some fractal trails that Mandelbrot calls cartoons (see, e.g., Chapter
+1 in "Multifractals and 1/f Noise: Wild Self-affinity in Physics." New
+York NY: Springer, 1999). This is a work in progress, but already
+has some material to build various generalizations of Brownian motion.
+
 **trail_maker.py** uses [NumPy](http://numpy.scipy.org/) and
 [argparse](http://code.google.com/p/argparse/).
 
@@ -19,6 +25,11 @@ clean-up/rewrite of the code used for that paper.
 To use it, first create `trail_length_calc.so` by running
 
 `python setup.py build_ext --inplace`
+
+**mandelbrot_cartoons.py** uses [NumPy](http://numpy.scipy.org/),
+[SciPy](http://www.scipy.org/) optimization routines, 
+[argparse](http://code.google.com/p/argparse/) and
+[PyX](http://pyx.sourceforge.net/)
 
 Keywords: Fractals -- fractal dimension -- Brownian motion --
 random walk
